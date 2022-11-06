@@ -1,0 +1,180 @@
+-- 1
+-- create a view named cstomer_addresses: shipping and billing addy for customer
+-- returns Customers table: customer_id, email_address, last_name and first_name
+-- returns Addresses table: bill_line1, bill_line2, bill_city, bill_state, bill_zip, 
+-- ship_line1, ship_line2, ship_city, ship_state, and ship_zip.
+
+use my_guitar_shop;
+create or replace view customer_addresses
+as
+select c.customer_id, email_address, last_name, first_name, 
+a.line1 as bill_line1, a.line2 as bill_line2, a.city as bill_city, 
+a.state as bill_state, a.zip_code as bill_zip, sa.line1 as ship_line1, 
+sa.line2 as ship_line2, sa.city as ship_city, sa.state as ship_state,
+sa.zip_code as ship_zip
+from customers c join addresses a
+on c.customer_id = a.customer_id
+and c.billing_address_id = a.address_id
+join
+addresses sa on 
+c.customer_id = sa.customer_id
+and c.billing_address_id = sa.address_id;
+
+-- 2 
+-- select that returns customer_id, last_name, first_name, bill_line1
+-- from customer_addresses
+-- sorted by the last_name and then first_name columns
+select customer_id, last_name, first_name, bill_line1
+from customer_addresses
+order by last_name, first_name;
+
+
+
+-- 3
+-- create view: order_item_products
+-- returns Orders table: order_id, order_date, tax_amount, and ship_date
+-- returns product_name column from the Products table
+-- returns Order_Items table: item_price, discount_amount, 
+-- final_price (the discount amount subtracted from the item price), 
+-- quantity, and item_total (the calculated total for the item).
+
+create or replace view order_items_products
+as
+select o.order_id, o.order_date, o.tax_amount, o.ship_date, 
+p.product_name, oi.item_price, 
+oi.discount_amount, (oi.item_price - oi.discount_amount ) as final_price, oi.quantity, 
+ (oi.item_price - oi.discount_amount) * quantity as item_total
+from products p join  order_items oi
+on p.product_id =  oi.product_id
+join orders o
+on oi.order_id = o.order_id;
+
+
+-- 4
+-- stored procedure named test
+-- declare variable set to count all products from products table
+-- if count >= 7 then mssg: "The number of products is greater than or equal to 7”
+-- if count <= 7 then mssg: "The number of products is less than 7”
+DROP PROCEDURE IF EXISTS test;
+delimiter //
+
+create procedure test()
+begin
+declare product_count int;
+
+select count(product_id)
+into product_count
+from products;
+
+if product_count >= 7 then 
+select 'The number of products is greater than or equal to 7' as message;
+else  
+select 'The number of products is less than 7' as message;
+end if;
+end//
+
+delimiter ; 
+call test ();
+
+-- 5
+-- store procedure test
+-- two variables 
+-- 		count of al products in products table
+-- 		avg list price for products 
+-- if product is >= 7 then display a result set that displays the values of both variables
+-- if else message: "the number of products is less than 7"
+drop procedure if exists test;
+
+delimiter //
+
+create procedure test()
+begin 
+declare products_count	int; 
+declare list_price_avg	decimal(9,2);
+
+select count(product_id), avg(list_price)
+into products_count, list_price_avg
+from products;
+
+if products_count >= 7 then 
+SELECT concat('The number of products is greater than or equal to 7, ',' Average price is ', list_price_avg)
+    AS message;
+else 
+select 'The number of products is less than 7' as message;
+end if;
+end//
+
+delimiter ;
+call test();
+
+
+-- question 6
+-- procedure insert_category
+-- creates a procedure that adds a new row to the categories table 
+-- 1 parameter for the ctegory name
+-- two cal statements that test this procedure: no duplicate cat names
+
+drop procedure if exists insert_category;
+
+delimiter //
+
+create procedure insert_category
+( 
+	category_id_param		int,
+    category_name_param		varchar(50)
+)
+begin 
+insert into categories 
+values(category_id_param, category_name_param);
+end//
+
+delimiter ;
+
+-- test success: 
+call insert_category(5,'Trumpet');
+
+-- test fail: 
+call insert_category(4, 'guitar');
+
+DELETE FROM categories WHERE category_id = 5;
+
+-- question 7
+-- create trigger named products_before_insert
+-- inserts the current date for the date_added_column(products table 
+-- if the value for that column is null
+-- test trigger with insert statement 
+-- provide select statement to see if worked 
+-- cheproductsck product table to see which columns hve default value 
+-- date_add has defualt value null 
+-- which is what u need to indert for this question to test trigger
+
+drop trigger if exists products_before_insert;
+
+delimiter //
+
+create trigger products_before_insert
+before insert on products 
+for each row
+begin 
+if 
+ new.date_added is null then set new.date_added = curdate();
+ end if;
+ 
+    end//
+  
+delimiter ;
+
+select * 
+from categories;
+
+insert into products 
+values (default, 1, 435, "Bike", 'product description', 99, .80, null);
+
+select * 
+from products;
+
+insert into products
+values (default, 2, 444, "Car", 'product description', 99, .80, "2022-03-20");
+
+select * 
+from products;
