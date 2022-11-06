@@ -64,5 +64,8 @@ SELECT test_glaccounts_description('Book Inventory') AS message;
 SELECT test_glaccounts_description('Fail') AS message;
 
 
-  
+    /* Chapter 16 */
+    -- error when payment_total + credit_total > invoice_total for each row 
+    -- test with update statement
+
     
