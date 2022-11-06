@@ -68,4 +68,19 @@ SELECT test_glaccounts_description('Fail') AS message;
     -- error when payment_total + credit_total > invoice_total for each row 
     -- test with update statement
 
-    
+
+DELIMITER //
+CREATE TRIGGER invoices_before_update
+ BEFORE UPDATE ON invoices FOR EACH ROW
+BEGIN DECLARE sum_payment_credit DECIMAL(9,2);
+
+SELECT sum(payment_total + credit_total) 
+INTO sum_payment_credit 
+FROM invoices
+WHERE invoice_id = NEW.invoice_id;
+
+IF sum_payment_credit > NEW.invoice_total THEN 
+SIGNAL SQLSTATE 'HY000'
+SET MESSAGE_TEXT = 'Sum of Payment Total and Credit total must not be greater than invoice total.'; 
+END IF; 
+END//    
