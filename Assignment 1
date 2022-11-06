@@ -85,3 +85,11 @@ SET MESSAGE_TEXT = 'Sum of Payment Total and Credit total must not be greater th
 END IF; 
 END//    
 delimiter ;
+drop trigger if exists invoices_before_update;
+ 
+
+-- Question 1
+-- create trigger invoices_after_update
+-- insert old data into invoice_aduit table after update
+-- test with update
+-- crate invoices_audit table
