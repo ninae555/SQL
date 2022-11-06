@@ -84,3 +84,4 @@ SIGNAL SQLSTATE 'HY000'
 SET MESSAGE_TEXT = 'Sum of Payment Total and Credit total must not be greater than invoice total.'; 
 END IF; 
 END//    
+delimiter ;
