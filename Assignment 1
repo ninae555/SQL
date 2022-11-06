@@ -1,2 +1,26 @@
 use ap;
 DROP PROCEDURE IF EXISTS insert_glaccount;
+DELIMITER //
+
+create procedure insert_glaccount
+(
+	account_number_param       int,
+    account_description_param  varchar(50)
+)
+begin
+ 
+ start transaction;
+ 
+ insert into general_ledger_accounts 
+	(account_number, account_description)
+    VALUES
+    (account_number_param, account_description_param);
+    
+    end //
+    
+delimiter ;
+    
+ call insert_glaccount(700, 'txt');
+ call insert_glaccount(700, 'Cash'); -- description and id must be unique
+ delete from general_ledger_accounts where account_number = 1123;
+ delete from general_ledger_accounts where account_number = 700;
