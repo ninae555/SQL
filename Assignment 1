@@ -24,3 +24,45 @@ delimiter ;
  call insert_glaccount(700, 'Cash'); -- description and id must be unique
  delete from general_ledger_accounts where account_number = 1123;
  delete from general_ledger_accounts where account_number = 700;
+ -- Question 2
+ 
+ 
+ select * 
+ from general_ledger_accounts
+ order by account_number;
+ 
+delimiter //
+ 
+ create function test_glaccount_description 
+ ( 
+ account_description_param varchar(50) -- something you pass/variable is something you store
+ )
+ returns int 
+ deterministic reads sql data 
+ begin
+	declare account_number_var  int; -- how to choose the right variable 
+   
+    select account_number
+    into account_number_var
+    from general_ledger_accounts
+    where account_descrption = account_description_param;
+    
+    if account_description_var is not null then 
+		return true;
+	else
+		return false;
+	end if;
+     
+    end//
+    
+    delimiter ;
+    
+    -- Test success: 
+SELECT test_glaccounts_description('Book Inventory') AS message;
+
+-- Test fail: 
+SELECT test_glaccounts_description('Fail') AS message;
+
+
+  
+    
