@@ -93,3 +93,15 @@ drop trigger if exists invoices_before_update;
 -- insert old data into invoice_aduit table after update
 -- test with update
 -- crate invoices_audit table
+
+
+create table invoices_audit
+ (
+	vendor_id		int				not null,
+	invoice_number  varchar(50)		not null, 
+    invoice_total 	decimal(9,5)	not null,
+    action_type 	varchar(50) 	not null,
+    action_date 	datetime 		not null
+    );
+    
+drop trigger if exists invoices_after_update;
