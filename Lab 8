@@ -105,3 +105,37 @@ create table invoices_audit
     );
     
 drop trigger if exists invoices_after_update;
+delimiter //
+
+create trigger invoices_after_update
+	before update on invoices 
+    for each row
+begin
+	insert into invoices_audit values
+    (old.vendor_id, old.invoice_number, old.invoice_total, 'updated', NOW());
+    end //
+delimiter ;
+    
+
+UPDATE invoices
+SET payment_total = 100
+WHERE invoice_id = 112;
+
+SELECT * FROM invoices_audit;
+
+
+UPDATE invoices
+SET payment_total = 0;
+
+
+
+update invoices
+set invoice_total = 0 
+where invoice_id = 115;
+
+select * 
+from invoices_audit;
+
+delete from invoices where invoice_id = 115;
+
+
